@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرر نص بسيط</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fafafa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-copy {
+            background-color: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 10px 22px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        }
+
+        .btn-copy:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-copy:active {
+            transform: scale(0.97);
+        }
+
+        .editor {
+            width: 100%;
+            height: 75vh;
+            background: #ffffff;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            font-size: 22px;
+            line-height: 1.8;
+            outline: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            overflow-y: auto;
+            color: #1f2937;
+        }
+
+        .editor:focus {
+            border-color: #2563eb;
+        }
+
+        /* نص توضيحي عند فراغ الخانة */
+        .editor:empty:before {
+            content: "اكتب هنا...";
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="top-bar">
+            <button class="btn-copy" id="copyBtn" onclick="copyAllText()">نسخ الكل</button>
+        </div>
+        
+        <!-- خانة الكتابة -->
+        <div id="editor" class="editor" contenteditable="true"></div>
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // التعديل عند الضغط على زر Shift لتسطير الكلمة الأخيرة
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Shift') {
+                e.preventDefault();
+                underlineLastWord();
+            }
+        });
+
+        function underlineLastWord() {
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+
+            // إذا كان هناك نص محدد مسبقاً يضع تحته خط مباشرة
+            if (!sel.isCollapsed) {
+                document.execCommand('underline', false, null);
+                return;
+            }
+
+            // تحديد الكلمة الأخيرة قبل المؤشر ووضع خط تحتها
+            const range = sel.getRangeAt(0);
+            const node = range.startContainer;
+
+            if (node.nodeType === Node.TEXT_NODE) {
+                const text = node.textContent;
+                const offset = range.startOffset;
+                const beforeText = text.slice(0, offset);
+                const match = beforeText.match(/(\S+)\s*$/);
+
+                if (match) {
+                    const wordStart = match.index;
+                    const wordEnd = wordStart + match[1].length;
+
+                    const wordRange = document.createRange();
+                    wordRange.setStart(node, wordStart);
+                    wordRange.setEnd(node, wordEnd);
+
+                    sel.removeAllRanges();
+                    sel.addRange(wordRange);
+                    
+                    document.execCommand('underline', false, null);
+
+                    // إعادة المؤشر لمكانه الأصلي
+                    const newRange = document.createRange();
+                    newRange.setStart(node, offset);
+                    newRange.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(newRange);
+                }
+            }
+        }
+
+        // وظيفة نسخ جميع النصوص
+        function copyAllText() {
+            const textToCopy = editor.innerText;
+            
+            if (!textToCopy.trim()) return;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalText = copyBtn.innerText;
+                copyBtn.innerText = 'تم النسخ! ✓';
+                copyBtn.style.backgroundColor = '#16a34a';
+
+                setTimeout(() => {
+                    copyBtn.innerText = originalText;
+                    copyBtn.style.backgroundColor = '#2563eb';
+                }, 1500);
+            });
+        }
+    </script>
+
+</body>
+</html>
