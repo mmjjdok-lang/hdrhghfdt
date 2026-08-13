@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محرر نص بسيط</title>
+    <title>محرر نص كبير</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,21 +13,23 @@
 
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #fafafa;
+            background-color: #f3f4f6;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
+            height: 100vh;
+            padding: 15px;
+            overflow: hidden;
         }
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 98vw;
+            height: 96vh;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .top-bar {
@@ -39,13 +41,13 @@
             background-color: #2563eb;
             color: #ffffff;
             border: none;
-            padding: 10px 22px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 8px;
+            padding: 12px 28px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         .btn-copy:hover {
@@ -56,26 +58,26 @@
             transform: scale(0.97);
         }
 
+        /* خانة الكتابة العملاقة */
         .editor {
             width: 100%;
-            height: 75vh;
+            flex-grow: 1;
             background: #ffffff;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 24px;
-            font-size: 22px;
+            border: 2px solid #d1d5db;
+            border-radius: 16px;
+            padding: 30px;
+            font-size: 32px; /* خط كبير جداً */
             line-height: 1.8;
             outline: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             overflow-y: auto;
-            color: #1f2937;
+            color: #111827;
         }
 
         .editor:focus {
             border-color: #2563eb;
         }
 
-        /* نص توضيحي عند فراغ الخانة */
         .editor:empty:before {
             content: "اكتب هنا...";
             color: #9ca3af;
@@ -86,7 +88,7 @@
 
     <div class="container">
         <div class="top-bar">
-            <button class="btn-copy" id="copyBtn" onclick="copyAllText()">نسخ الكل</button>
+            <button class="btn-copy" id="copyBtn" onclick="copyAllText()">نسخ الكل 📋</button>
         </div>
         
         <!-- خانة الكتابة -->
@@ -109,13 +111,11 @@
             const sel = window.getSelection();
             if (!sel.rangeCount) return;
 
-            // إذا كان هناك نص محدد مسبقاً يضع تحته خط مباشرة
             if (!sel.isCollapsed) {
                 document.execCommand('underline', false, null);
                 return;
             }
 
-            // تحديد الكلمة الأخيرة قبل المؤشر ووضع خط تحتها
             const range = sel.getRangeAt(0);
             const node = range.startContainer;
 
@@ -138,7 +138,6 @@
                     
                     document.execCommand('underline', false, null);
 
-                    // إعادة المؤشر لمكانه الأصلي
                     const newRange = document.createRange();
                     newRange.setStart(node, offset);
                     newRange.collapse(true);
@@ -148,7 +147,7 @@
             }
         }
 
-        // وظيفة نسخ جميع النصوص
+        // نسخ كل النصوص
         function copyAllText() {
             const textToCopy = editor.innerText;
             
